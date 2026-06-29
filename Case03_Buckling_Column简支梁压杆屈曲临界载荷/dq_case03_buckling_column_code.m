@@ -47,11 +47,13 @@ title('Simply supported column buckling modes');
 saveas(gcf, 'dq_case03_buckling_column_code_buckling_mode_comparison.png');
 
 figure('Color', 'w');
-semilogy(result(:, 1), result(:, 4), 'gs-', 'MarkerSize', 6, 'LineWidth', 1.4);
+plot(result(:, 1), result(:, 3), 'k-', 'LineWidth', 2.0); hold on;
+plot(result(:, 1), result(:, 2), 'go', 'MarkerSize', 6, 'LineWidth', 1.4);
 grid on; box on;
-xlabel('mode number'); ylabel('relative error of Pbar');
-title('Buckling load parameter error');
-saveas(gcf, 'dq_case03_buckling_column_code_buckling_load_error.png');
+xlabel('mode number'); ylabel('critical load parameter Pbar');
+legend('Exact Pbar', 'DQ Pbar', 'Location', 'northwest');
+title('Buckling critical load comparison');
+saveas(gcf, 'dq_case03_buckling_column_code_buckling_load_comparison.png');
 
 %% 函数区
 function [xi, Pbar, modes] = solve_buckling(N)

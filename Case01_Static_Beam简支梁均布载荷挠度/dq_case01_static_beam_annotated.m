@@ -70,14 +70,20 @@ for k = 1:numel(N_list)
     result(k, :) = [N_list(k), max_error, W_mid, rel_error];
 end
 
-% W_exact 是 N_plot 节点上的精确解，用于误差分布图。
-W_exact = exact_solution(xi);
-
 % 生成更密的点，从 0 到 1 一共取 401 个，用于画一条平滑的精确解曲线。
 xi_fine = linspace(0, 1, 401)';
 
 % 在这 401 个密集点上计算精确解。
 W_fine = exact_solution(xi_fine);
+
+% 根据 DQ 求出的挠度 W，继续计算 DQ 弯矩和 DQ 剪力。
+% 无量纲弯矩：Mbar = M/(qL^2) = -W''。
+% 无量纲剪力：Vbar = V/(qL) = -W'''。
+[M_dq, V_dq] = dq_moment_shear(xi, W);
+
+% 在密集点上计算精确弯矩和精确剪力，用于画平滑曲线。
+M_fine = exact_moment(xi_fine);
+V_fine = exact_shear(xi_fine);
 
 % 将误差结果写入 results.txt 文件。
 fid = fopen('dq_case01_static_beam_annotated_results.txt', 'w');
@@ -116,13 +122,31 @@ title('Simply supported beam under uniform load');
 % 保存成图片文件
 saveas(gcf, 'dq_case01_static_beam_annotated_deflection_comparison.png');
 
-% 图2：节点误差分布图。蓝色方块表示每个节点处的误差，用来看 DQ 解和精确解差多少
+% 图2：DQ 弯矩和精确弯矩对比图。
+% 根据梁理论，弯矩和挠度二阶导数有关；在这里采用无量纲形式 M/(qL^2) = -W''。
 figure('Color', 'w');
-plot(xi, abs(W - W_exact), 'bs-', 'MarkerSize', 6, 'LineWidth', 1.4);
+% 黑色线是精确弯矩曲线。
+plot(xi_fine, M_fine, 'k-', 'LineWidth', 2.0); hold on;
+% 红色圆点是由 DQ 挠度二阶导数算出来的弯矩。
+plot(xi, M_dq, 'ro', 'MarkerSize', 6, 'LineWidth', 1.4);
 grid on; box on;
-xlabel('\xi=x/L'); ylabel('|W_{DQ}-W_{exact}|');
-title('Node error distribution');
-saveas(gcf, 'dq_case01_static_beam_annotated_error_distribution.png');
+xlabel('\xi=x/L'); ylabel('M/(qL^2) = -d2W/dxi2');
+legend('Exact moment', 'DQ nodes', 'Location', 'best');
+title('Bending moment comparison');
+saveas(gcf, 'dq_case01_static_beam_annotated_moment_comparison.png');
+
+% 图3：DQ 剪力和精确剪力对比图。
+% 剪力是弯矩对 x 的导数；在这里采用无量纲形式 V/(qL) = -W'''。
+figure('Color', 'w');
+% 黑色线是精确剪力曲线。
+plot(xi_fine, V_fine, 'k-', 'LineWidth', 2.0); hold on;
+% 红色圆点是由 DQ 挠度三阶导数算出来的剪力。
+plot(xi, V_dq, 'ro', 'MarkerSize', 6, 'LineWidth', 1.4);
+grid on; box on;
+xlabel('\xi=x/L'); ylabel('V/(qL) = -d3W/dxi3');
+legend('Exact shear', 'DQ nodes', 'Location', 'best');
+title('Shear force comparison');
+saveas(gcf, 'dq_case01_static_beam_annotated_shear_comparison.png');
 
 %% 下面是上面 1、2、3 步调用的函数
 
@@ -198,4 +222,31 @@ end
 function W = exact_solution(xi)
 		% 简支梁均布载荷的无量纲解析解
     W = (xi - 2*xi.^3 + xi.^4)/24;
+end
+
+%% 3. DQ弯矩和剪力函数：由 DQ 挠度 W 继续求导得到内力
+% 定义函数dq_moment_shear
+function [M, V] = dq_moment_shear(xi, W)
+    % 重新根据节点 xi 构造 DQ 导数矩阵。
+    D1 = dq_first_derivative_matrix(xi);
+    D2 = D1*D1; % 二阶导数矩阵，用于计算 W''。
+    D3 = D2*D1; % 三阶导数矩阵，用于计算 W'''。
+
+    % 无量纲弯矩 Mbar = M/(qL^2) = -W''。
+    M = -D2*W;
+
+    % 无量纲剪力 Vbar = V/(qL) = -W'''。
+    V = -D3*W;
+end
+
+%% 3. 精确弯矩函数：用于和 DQ 弯矩作对比
+function M = exact_moment(xi)
+    % 简支梁均布载荷的无量纲弯矩精确解：M/(qL^2) = xi(1-xi)/2。
+    M = xi.*(1 - xi)/2;
+end
+
+%% 3. 精确剪力函数：用于和 DQ 剪力作对比
+function V = exact_shear(xi)
+    % 简支梁均布载荷的无量纲剪力精确解：V/(qL) = 1/2 - xi。
+    V = 0.5 - xi;
 end

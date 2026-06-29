@@ -88,13 +88,16 @@ legend('Exact mode 1', 'DQ mode 1', 'Exact mode 2', 'DQ mode 2', 'Exact mode 3',
 title('Simply supported column buckling modes');
 saveas(gcf, 'dq_case03_buckling_column_annotated_buckling_mode_comparison.png');
 
-% 图2：无量纲临界载荷相对误差图。纵坐标用 semilogy，便于显示很小的误差。
+% 图2：无量纲临界载荷对比图。黑色线是精确临界载荷，绿色圆点是 DQ 求出的临界载荷。
+% 屈曲问题最主要看的不是弯矩剪力，而是临界载荷 Pbar 和对应屈曲模态。
 figure('Color', 'w');
-semilogy(result(:, 1), result(:, 4), 'gs-', 'MarkerSize', 6, 'LineWidth', 1.4);
+plot(result(:, 1), result(:, 3), 'k-', 'LineWidth', 2.0); hold on;
+plot(result(:, 1), result(:, 2), 'go', 'MarkerSize', 6, 'LineWidth', 1.4);
 grid on; box on;
-xlabel('mode number'); ylabel('relative error of Pbar');
-title('Buckling load parameter error');
-saveas(gcf, 'dq_case03_buckling_column_annotated_buckling_load_error.png');
+xlabel('mode number'); ylabel('critical load parameter Pbar');
+legend('Exact Pbar', 'DQ Pbar', 'Location', 'northwest');
+title('Buckling critical load comparison');
+saveas(gcf, 'dq_case03_buckling_column_annotated_buckling_load_comparison.png');
 
 %% 下面是上面 1、2、3 步调用的函数
 

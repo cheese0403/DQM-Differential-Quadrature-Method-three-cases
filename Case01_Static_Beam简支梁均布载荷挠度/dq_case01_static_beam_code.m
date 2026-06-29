@@ -32,9 +32,11 @@ for k = 1:numel(N_list)
     result(k, :) = [N_list(k), max_error, W_mid, rel_error];
 end
 
-W_exact = exact_solution(xi);
 xi_fine = linspace(0, 1, 401)';
 W_fine = exact_solution(xi_fine);
+[M_dq, V_dq] = dq_moment_shear(xi, W);
+M_fine = exact_moment(xi_fine);
+V_fine = exact_shear(xi_fine);
 
 fid = fopen('dq_case01_static_beam_code_results.txt', 'w');
 fprintf(fid, 'Case 01: simply supported beam under uniform load\n');
@@ -56,11 +58,22 @@ title('Simply supported beam under uniform load');
 saveas(gcf, 'dq_case01_static_beam_code_deflection_comparison.png');
 
 figure('Color', 'w');
-plot(xi, abs(W - W_exact), 'bs-', 'MarkerSize', 6, 'LineWidth', 1.4);
+plot(xi_fine, M_fine, 'k-', 'LineWidth', 2.0); hold on;
+plot(xi, M_dq, 'ro', 'MarkerSize', 6, 'LineWidth', 1.4);
 grid on; box on;
-xlabel('\xi=x/L'); ylabel('|W_{DQ}-W_{exact}|');
-title('Node error distribution');
-saveas(gcf, 'dq_case01_static_beam_code_error_distribution.png');
+xlabel('\xi=x/L'); ylabel('M/(qL^2) = -d2W/dxi2');
+legend('Exact moment', 'DQ nodes', 'Location', 'best');
+title('Bending moment comparison');
+saveas(gcf, 'dq_case01_static_beam_code_moment_comparison.png');
+
+figure('Color', 'w');
+plot(xi_fine, V_fine, 'k-', 'LineWidth', 2.0); hold on;
+plot(xi, V_dq, 'ro', 'MarkerSize', 6, 'LineWidth', 1.4);
+grid on; box on;
+xlabel('\xi=x/L'); ylabel('V/(qL) = -d3W/dxi3');
+legend('Exact shear', 'DQ nodes', 'Location', 'best');
+title('Shear force comparison');
+saveas(gcf, 'dq_case01_static_beam_code_shear_comparison.png');
 
 %% 函数区
 function [xi, W] = solve_static_beam(N)
@@ -106,6 +119,23 @@ function D = dq_first_derivative_matrix(x)
     end
 end
 
+function [M, V] = dq_moment_shear(xi, W)
+    % DQ 内力：M/(qL^2) = -W''，V/(qL) = -W'''
+    D1 = dq_first_derivative_matrix(xi);
+    D2 = D1*D1;
+    D3 = D2*D1;
+    M = -D2*W;
+    V = -D3*W;
+end
+
 function W = exact_solution(xi)
     W = (xi - 2*xi.^3 + xi.^4)/24;
+end
+
+function M = exact_moment(xi)
+    M = xi.*(1 - xi)/2;
+end
+
+function V = exact_shear(xi)
+    V = 0.5 - xi;
 end

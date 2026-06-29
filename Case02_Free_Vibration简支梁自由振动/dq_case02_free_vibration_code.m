@@ -47,11 +47,13 @@ title('Simply supported beam free vibration modes');
 saveas(gcf, 'dq_case02_free_vibration_code_mode_shape_comparison.png');
 
 figure('Color', 'w');
-semilogy(result(:, 1), result(:, 4), 'ms-', 'MarkerSize', 6, 'LineWidth', 1.4);
+plot(result(:, 1), result(:, 3), 'k-', 'LineWidth', 2.0); hold on;
+plot(result(:, 1), result(:, 2), 'mo', 'MarkerSize', 6, 'LineWidth', 1.4);
 grid on; box on;
-xlabel('mode number'); ylabel('relative error of beta');
-title('Frequency parameter error');
-saveas(gcf, 'dq_case02_free_vibration_code_frequency_error.png');
+xlabel('mode number'); ylabel('frequency parameter beta');
+legend('Exact beta', 'DQ beta', 'Location', 'northwest');
+title('Frequency parameter comparison');
+saveas(gcf, 'dq_case02_free_vibration_code_frequency_comparison.png');
 
 %% 函数区
 function [xi, beta, modes] = solve_free_vibration(N)

@@ -86,13 +86,16 @@ legend('Exact mode 1', 'DQ mode 1', 'Exact mode 2', 'DQ mode 2', 'Exact mode 3',
 title('Simply supported beam free vibration modes');
 saveas(gcf, 'dq_case02_free_vibration_annotated_mode_shape_comparison.png');
 
-% 图2：频率参数相对误差图。纵坐标用 semilogy，便于显示很小的误差。
+% 图2：频率参数对比图。黑色线是精确频率参数，紫色圆点是 DQ 求出的频率参数。
+% 自由振动问题最主要看的不是弯矩剪力，而是每一阶的频率参数 beta 和对应振型。
 figure('Color', 'w');
-semilogy(result(:, 1), result(:, 4), 'ms-', 'MarkerSize', 6, 'LineWidth', 1.4);
+plot(result(:, 1), result(:, 3), 'k-', 'LineWidth', 2.0); hold on;
+plot(result(:, 1), result(:, 2), 'mo', 'MarkerSize', 6, 'LineWidth', 1.4);
 grid on; box on;
-xlabel('mode number'); ylabel('relative error of beta');
-title('Frequency parameter error');
-saveas(gcf, 'dq_case02_free_vibration_annotated_frequency_error.png');
+xlabel('mode number'); ylabel('frequency parameter beta');
+legend('Exact beta', 'DQ beta', 'Location', 'northwest');
+title('Frequency parameter comparison');
+saveas(gcf, 'dq_case02_free_vibration_annotated_frequency_comparison.png');
 
 %% 下面是上面 1、2、3 步调用的函数
 
