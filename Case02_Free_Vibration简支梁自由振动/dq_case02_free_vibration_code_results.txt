@@ -1,0 +1,9 @@
+Case 02: simply supported beam free vibration
+Equation: d^4 Phi / d xi^4 = beta^4*Phi, exact beta_n = n*pi
+
+  mode            beta DQ         beta exact          rel error
+     1       3.1415926536       3.1415926536       2.473482e-12
+     2       6.2831853070       6.2831853072       3.091287e-11
+     3       9.4247779128       9.4247779608       5.088897e-09
+     4      12.5663869117      12.5663706144       1.296904e-06
+     5      15.7082414653      15.7079632679       1.771059e-05
